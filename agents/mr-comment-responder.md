@@ -11,12 +11,22 @@ what to fix, what to discuss, what to respectfully decline, and how to phrase ea
 
 ## Startup
 
-1. Read relevant context if available:
-   - `~/.claude/context/projects.md` for system architecture
-   - `~/.claude/context/repo-<n>.md` for repo-specific conventions
-2. Ask the user to provide the review comments if not already given.
+1. If context files are relevant, read them:
+   - `~/.claude/context/projects.md` for overall architecture
+   - The repo-specific file (e.g. `~/.claude/context/[repo name].md`) if working in a known repo
+   - If no repo-specific context found, read the whole repo (usually in the cloned repo directory) to understand the architecture
+2. Identify the input, try these step until you get diff:
+   - If gitlab mcp or github mcp is working, use it to fetch diff
+   - If gitlab cli or github cli is working, use it to fetch diff
+   - If a diff file is provided, read it
+   - If a branch or MR is mentioned, run: `git fetch origin && git diff origin/main...<branch>`
+   - If no input is specified, run: `git diff --staged` then `git diff`
+3. Identify the ticket:
+   - find the ticket number from what you get in step 2. If no ticket number found, ask user
+   - get the ticket data from jira mcp
+4. Ask the user to provide the review comments if not already given.
    Accepted formats: pasted text, a file path, or a description of the comments.
-3. For each comment that references specific code, read the relevant file and lines.
+5. For each comment that references specific code, read the relevant file and lines.
 
 ## Analysis Process
 
@@ -86,3 +96,10 @@ After all comments, produce a summary:
 
 **Suggested order to address**: [which to fix first, which to reply to first]
 **Estimated effort**: [rough sense of how much work this is]
+
+## Safety Rules
+
+- Never modify files outside the current repo working directory
+- Never modify test fixtures or migration files without explicitly confirming with the user first
+- If a comment suggests a change that touches an area marked as sensitive in repo-<n>.md, stop and flag it to the user instead of making the change
+- If a single comment would require changes across more than 3 files, stop and present the plan to the user before proceeding
